@@ -65,6 +65,7 @@ void AMyPawn::Tick( float DeltaTime )
 	{
 		if (!CurrentVelocity.IsZero())
 		{
+			//set movement speed based on time movement buttons have been held down
 			if (fAccumulatedTime > fTimeToTriggerRunning)
 			{
 				FVector NewLocation = GetActorLocation() + (CurrentVelocity * DeltaTime * fMagnitudeOfRunIncrease);
@@ -77,14 +78,11 @@ void AMyPawn::Tick( float DeltaTime )
 			}
 			
 		}
-		else
+		else //if no buttons are being pressed, reset timer that tracks button pressing
 		{
 			fAccumulatedTime = 0.0f;
 		}
 	}
-
-	//DEBUG - tracking accumulatedTime
-	//UE_LOG(pawnDebug, Warning, TEXT("Accumalted time to run is %f"), this->fAccumulatedTime);
 
 }
 

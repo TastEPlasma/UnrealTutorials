@@ -5,6 +5,8 @@
 
 #include "Kismet/GameplayStatics.h"
 
+DEFINE_LOG_CATEGORY(cameraDebug);
+
 
 // Sets default values
 ACameraDirector::ACameraDirector()
@@ -29,6 +31,7 @@ void ACameraDirector::Tick( float DeltaTime )
 	const float TimeBetweenCameraChanges = 2.0f;
 	const float SmoothBlendTime = 0.75f;
 	TimeToNextCameraChange -= DeltaTime;
+	int8 sizeOfCameraArray = arrayCameras.Num();
 	if (TimeToNextCameraChange <= 0.0f)
 	{
 		TimeToNextCameraChange += TimeBetweenCameraChanges;
@@ -37,18 +40,19 @@ void ACameraDirector::Tick( float DeltaTime )
 		APlayerController* OurPlayerController = UGameplayStatics::GetPlayerController(this, 0);
 		if (OurPlayerController)
 		{
-			if ((OurPlayerController->GetViewTarget() != CameraOne) && (CameraOne != nullptr))
+			// Make sure that some cameras have been added to array in-editor
+			if (sizeOfCameraArray > 0)
 			{
-				// Cut instantly to camera one.
-				OurPlayerController->SetViewTarget(CameraOne);
-			}
-			else if ((OurPlayerController->GetViewTarget() != CameraTwo) && (CameraTwo != nullptr))
-			{
-				// Blend smoothly to camera two.
-				OurPlayerController->SetViewTargetWithBlend(CameraTwo, SmoothBlendTime);
+				OurPlayerController->SetViewTargetWithBlend(arrayCameras[camSelector], SmoothBlendTime);
+				camSelector++;
+
+				//check against out of bounds for the array, and reset to first camera as needed
+				if (camSelector >= sizeOfCameraArray)
+				{
+					camSelector = 0;
+				}
 			}
 		}
 	}
-
 }
 

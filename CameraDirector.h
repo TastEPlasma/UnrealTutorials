@@ -5,6 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "CameraDirector.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(cameraDebug, Log, All);
+
 UCLASS()
 class MYPROJECT_API ACameraDirector : public AActor
 {
@@ -21,11 +23,10 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	UPROPERTY(EditAnywhere)
-		AActor* CameraOne;
-
-	UPROPERTY(EditAnywhere)
-		AActor* CameraTwo;
+	TArray<AActor*> arrayCameras;
 
 	float TimeToNextCameraChange;
-	
+	int8 camSelector = 0;
 };
+
+
