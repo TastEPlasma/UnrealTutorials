@@ -11,7 +11,7 @@ DEFINE_LOG_CATEGORY(cameraDebug);
 // Sets default values
 ACameraDirector::ACameraDirector()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -20,39 +20,40 @@ ACameraDirector::ACameraDirector()
 void ACameraDirector::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
-void ACameraDirector::Tick( float DeltaTime )
+void ACameraDirector::Tick(float DeltaTime)
 {
-	Super::Tick( DeltaTime );
+	Super::Tick(DeltaTime);
 
-	const float TimeBetweenCameraChanges = 2.0f;
-	const float SmoothBlendTime = 0.75f;
-	TimeToNextCameraChange -= DeltaTime;
+	const float TimeBetweenCameraChanges = arrayCameras[camSelector].fLifeTime;
+	const float SmoothBlendTime = arrayCameras[camSelector].fBlendTime;
 	int8 sizeOfCameraArray = arrayCameras.Num();
+
+	TimeToNextCameraChange -= DeltaTime;
 	if (TimeToNextCameraChange <= 0.0f)
 	{
+		//adjust the time to next change, based on the setting for the next camera
 		TimeToNextCameraChange += TimeBetweenCameraChanges;
 
 		// Find the actor that handles control for the local player.
 		APlayerController* OurPlayerController = UGameplayStatics::GetPlayerController(this, 0);
 		if (OurPlayerController)
 		{
-			// Make sure that some cameras have been added to array in-editor
-			if (sizeOfCameraArray > 0)
+			//check that a camera actor has been assigned in the editor
+			if (arrayCameras[camSelector].CameraPtr != NULL)
 			{
-				OurPlayerController->SetViewTargetWithBlend(arrayCameras[camSelector], SmoothBlendTime);
-				camSelector++;
-
-				//check against out of bounds for the array, and reset to first camera as needed
-				if (camSelector >= sizeOfCameraArray)
-				{
-					camSelector = 0;
-				}
+				//if so, blend to new camera
+				OurPlayerController->SetViewTargetWithBlend(arrayCameras[camSelector].CameraPtr, SmoothBlendTime);
+			}
+			camSelector++;
+			if (camSelector >= sizeOfCameraArray)
+			{
+				//when array of cameras is finished, return to first camera
+				camSelector = 0;
 			}
 		}
 	}
 }
-
